@@ -12,7 +12,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: [""], // Replace with your allowed origins
+  origin: ["https://dpr-project.vercel.app/"], // Replace with your allowed origins
   methods: ["POST","GET"], // Specify allowed HTTP methods
   credentials: true // Allow credentials (e.g., cookies, authorization headers)
 }));
