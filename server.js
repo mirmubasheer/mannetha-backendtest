@@ -59,7 +59,7 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-app.get("/", (req, res) => {
+app.get("/new", (req, res) => {
   res.json("hello")
 })
 // Routes
