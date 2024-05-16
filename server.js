@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 8080;
 // Middleware
 app.use(cors({
   origin: ["https://dpr-project-mubasheers-projects.vercel.app/"], // Replace with your allowed origins
-  methods: ["POST", "GET"], // Specify allowed HTTP methods
+  methods: ["POST","GET"], // Specify allowed HTTP methods
   credentials: true // Allow credentials (e.g., cookies, authorization headers)
 }));
 app.use(bodyParser.json());
