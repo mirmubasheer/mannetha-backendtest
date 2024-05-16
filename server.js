@@ -8,11 +8,11 @@ const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+// const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(cors({
-  origin: ["https://dpr-project.vercel.app/"], // Replace with your allowed origins
+  origin: [""], // Replace with your allowed origins
   methods: ["POST","GET"], // Specify allowed HTTP methods
   credentials: true // Allow credentials (e.g., cookies, authorization headers)
 }));
