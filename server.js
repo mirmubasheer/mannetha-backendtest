@@ -8,9 +8,10 @@ const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+// const PORT = process.env.PORT || 8080;
 
 // Middleware
+
 // app.use(cors({
 //   origin: ["https://dprprop-mubasheers-projects.vercel.app/"], // Replace with your allowed origins
 //   methods: ["POST", "GET"], // Specify allowed HTTP methods
@@ -18,6 +19,7 @@ const PORT = process.env.PORT || 8080;
 // }));
 
 app.use(cors())
+
 app.use(bodyParser.json());
 
 // MongoDB Connection
@@ -61,9 +63,11 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+
 // app.get("/new", (req, res) => {
 //   res.json("hello")
 // })
+
 // Routes
 app.post("/customer", async (req, res) => {
   try {
