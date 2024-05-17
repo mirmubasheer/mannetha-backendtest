@@ -11,11 +11,13 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Middleware
-app.use(cors({
-  origin: ["https://dpr-project-mubasheers-projects.vercel.app/"], // Replace with your allowed origins
-  methods: ["POST","GET"], // Specify allowed HTTP methods
-  credentials: true // Allow credentials (e.g., cookies, authorization headers)
-}));
+// app.use(cors({
+//   origin: ["https://dprprop-mubasheers-projects.vercel.app/"], // Replace with your allowed origins
+//   methods: ["POST", "GET"], // Specify allowed HTTP methods
+//   credentials: true // Allow credentials (e.g., cookies, authorization headers)
+// }));
+
+app.use(cors())
 app.use(bodyParser.json());
 
 // MongoDB Connection
@@ -59,7 +61,9 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-
+// app.get("/new", (req, res) => {
+//   res.json("hello")
+// })
 // Routes
 app.post("/customer", async (req, res) => {
   try {
