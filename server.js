@@ -8,18 +8,18 @@ const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 
 const app = express();
-// const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080;
 
 // Middleware
-
-// app.use(cors({
-//   origin: ["https://dprprop-mubasheers-projects.vercel.app/"], // Replace with your allowed origins
-//   methods: ["POST", "GET"], // Specify allowed HTTP methods
-//   credentials: true // Allow credentials (e.g., cookies, authorization headers)
-// }));
-
-app.use(cors())
-
+const corsOptions = {
+  origin: 'https://dprprop.com',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
+}
+app.use(cors(corsOptions));
+app.use(cors());
+// app.use(express.static('build'));
 app.use(bodyParser.json());
 
 // MongoDB Connection
@@ -63,11 +63,9 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-
 // app.get("/new", (req, res) => {
 //   res.json("hello")
 // })
-
 // Routes
 app.post("/customer", async (req, res) => {
   try {
@@ -83,13 +81,33 @@ app.post("/customer", async (req, res) => {
 });
 
 app.post("/business", async (req, res) => {
+  // try {
+  //   const business = new Business(req.body);
+  //   const businessDoc = await business.save();
+  //   // console.log(businessDoc);
+  //   await sendEmail(req.body, "New Business Form Submission", "business");
+  //   res.json({ business: businessDoc });
+  // } 
   try {
-    const business = new Business(req.body);
-    const businessDoc = await business.save();
-    // console.log(businessDoc);
-    await sendEmail(req.body, "New Business Form Submission", "business");
-    res.json({ business: businessDoc });
-  } catch (err) {
+    const { businessCategory } = req.body;
+    
+    // Check if the business category is "Other"
+    if (businessCategory === "Other") {
+      // Handle "Other" category differently
+      const { businessName, businessEmail, businessPhone, otherCategory } = req.body;
+      const business = new Business({ businessName, businessEmail, businessPhone, businessCategory: otherCategory });
+      const businessDoc = await business.save();
+      await sendEmail({ ...req.body, businessCategory: otherCategory }, "New Business Form Submission", "business");
+      res.json({ business: businessDoc });
+    } else {
+      // Handle predefined categories
+      const business = new Business(req.body);
+      const businessDoc = await business.save();
+      await sendEmail(req.body, "New Business Form Submission", "business");
+      res.json({ business: businessDoc });
+    }
+  } 
+  catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
@@ -145,7 +163,7 @@ async function sendEmail(data, subject, formType) {
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: "mirmubasheer558@gmail.com, infosusarla@gmail.com",
+    to: ["info@dprprop.com", "mirmubasheer558@gmail.com"],
     subject: subject,
     text: body,
   };
