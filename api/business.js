@@ -1,6 +1,7 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
+const cors = require("cors"); // Import the cors module
 
 const businessSchema = new mongoose.Schema({
   businessName: String,
@@ -49,6 +50,7 @@ module.exports = async (req, res) => {
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
   };
   cors(corsOptions)(req, res, () => {});
+
   if (req.method === 'POST') {
     try {
       await connectToDatabase();

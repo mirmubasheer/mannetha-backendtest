@@ -1,6 +1,7 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
+const cors = require("cors");
 
 const cpSchema = new mongoose.Schema({
   cpname: { type: String, required: true },
@@ -40,15 +41,15 @@ async function connectToDatabase() {
 }
 
 module.exports = async (req, res) => {
-   // Enable CORS for requests from https://dprprop.com
-   const corsOptions = {
+  const corsOptions = {
     origin: 'https://dprprop.com',
     methods: 'POST',
     allowedHeaders: ['Content-Type'],
     credentials: true,
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+    optionsSuccessStatus: 200
   };
   cors(corsOptions)(req, res, () => {});
+
   if (req.method === 'POST') {
     try {
       await connectToDatabase();
