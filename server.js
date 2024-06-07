@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 8080;
 // Middleware
 const corsOptions = {
   origin: 'https://dprprop.com',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  methods: 'GET,POST',
   credentials: true,
   optionsSuccessStatus: 204
 }
@@ -62,9 +62,11 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-app.get("/new", (req, res) => {
-  res.json("hello")
-})
+
+// app.get("/new", (req, res) => {
+//   res.json("hello")
+// })
+
 // Routes
 app.post("/customer", async (req, res) => {
   try {
