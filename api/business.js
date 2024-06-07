@@ -40,8 +40,15 @@ async function connectToDatabase() {
 }
 
 module.exports = async (req, res) => {
-   // Enable CORS for all requests
-   cors()(req, res, () => {});
+  // Enable CORS for requests from https://dprprop.com
+  const corsOptions = {
+    origin: 'https://dprprop.com',
+    methods: 'POST',
+    allowedHeaders: ['Content-Type'],
+    credentials: true,
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  };
+  cors(corsOptions)(req, res, () => {});
   if (req.method === 'POST') {
     try {
       await connectToDatabase();
