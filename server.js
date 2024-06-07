@@ -11,13 +11,13 @@ const app = express();
 const PORT = 8080;
 
 // Middleware
-// const corsOptions = {
-//   origin: 'https://dprprop.com',
-//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//   credentials: true,
-//   optionsSuccessStatus: 204
-// }
-// app.use(cors(corsOptions));
+const corsOptions = {
+  origin: 'https://dprprop.com',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
+}
+app.use(cors(corsOptions));
 // app.use(cors());
 
 app.use(bodyParser.json());
