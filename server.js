@@ -8,18 +8,18 @@ const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = 8080;
 
 // Middleware
-const corsOptions = {
-  origin: 'https://dprprop.com',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  optionsSuccessStatus: 204
-}
-app.use(cors(corsOptions));
-app.use(cors());
-// app.use(express.static('build'));
+// const corsOptions = {
+//   origin: 'https://dprprop.com',
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//   credentials: true,
+//   optionsSuccessStatus: 204
+// }
+// app.use(cors(corsOptions));
+// app.use(cors());
+
 app.use(bodyParser.json());
 
 // MongoDB Connection
@@ -63,9 +63,9 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-// app.get("/new", (req, res) => {
-//   res.json("hello")
-// })
+app.get("/new", (req, res) => {
+  res.json("hello")
+})
 // Routes
 app.post("/customer", async (req, res) => {
   try {
@@ -175,3 +175,4 @@ async function sendEmail(data, subject, formType) {
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
+
