@@ -1,0 +1,32 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "api/customer.js",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "api/business.js",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "api/cp.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/customer",
+        "dest": "/api/customer.js"
+      },
+      {
+        "src": "/business",
+        "dest": "/api/business.js"
+      },
+      {
+        "src": "/cp",
+        "dest": "/api/cp.js"
+      }
+    ]
+  }
+  
