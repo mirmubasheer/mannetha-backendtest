@@ -40,6 +40,8 @@ async function connectToDatabase() {
 }
 
 module.exports = async (req, res) => {
+   // Enable CORS for all requests
+   cors()(req, res, () => {});
   if (req.method === 'POST') {
     try {
       await connectToDatabase();
