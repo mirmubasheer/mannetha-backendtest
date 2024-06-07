@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 
 const app = express();
-const port = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080;
 // Middleware
 const corsOptions = {
   origin: 'https://dprprop.com',
