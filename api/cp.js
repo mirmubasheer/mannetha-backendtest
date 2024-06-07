@@ -40,47 +40,52 @@ async function connectToDatabase() {
   }
 }
 
+// CORS middleware configuration
+const corsOptions = {
+  origin: 'https://dprprop.com',
+  methods: 'POST',
+  allowedHeaders: ['Content-Type'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+// Apply CORS middleware to your function
+const corsMiddleware = cors(corsOptions);
+
 module.exports = async (req, res) => {
-  const corsOptions = {
-    origin: 'https://dprprop.com',
-    methods: 'POST',
-    allowedHeaders: ['Content-Type'],
-    credentials: true,
-    optionsSuccessStatus: 200
-  };
-  cors(corsOptions)(req, res, () => {});
+  corsMiddleware(req, res, async () => {
+    if (req.method === 'POST') {
+      try {
+        await connectToDatabase();
 
-  if (req.method === 'POST') {
-    try {
-      await connectToDatabase();
+        const cp = new Cp(req.body);
+        const cpDoc = await cp.save();
 
-      const cp = new Cp(req.body);
-      const cpDoc = await cp.save();
+        const emailBody = `
+          CP Details:
+          CP Name: ${req.body.cpname}
+          CP Email: ${req.body.cpemail}
+          CP Mobile Number: ${req.body.cpmobilenumber}
+          CP Address: ${req.body.cpaddress}
+        `;
 
-      const emailBody = `
-        CP Details:
-        CP Name: ${req.body.cpname}
-        CP Email: ${req.body.cpemail}
-        CP Mobile Number: ${req.body.cpmobilenumber}
-        CP Address: ${req.body.cpaddress}
-      `;
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: ["info@dprprop.com", "mirmubasheer558@gmail.com"],
+          subject: "New CP Form Submission",
+          text: emailBody,
+        });
 
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: ["info@dprprop.com", "mirmubasheer558@gmail.com"],
-        subject: "New CP Form Submission",
-        text: emailBody,
-      });
-
-      res.status(200).json({ message: "CP data saved successfully" });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Internal server error" });
-    } finally {
-      mongoose.connection.close();
+        res.status(200).json({ message: "CP data saved successfully" });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal server error" });
+      } finally {
+        mongoose.connection.close();
+      }
+    } else {
+      res.setHeader('Allow', ['POST']);
+      res.status(405).end(`Method ${req.method} Not Allowed`);
     }
-  } else {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
+  });
 };
