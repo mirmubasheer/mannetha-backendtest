@@ -40,10 +40,6 @@ async function connectToDatabase() {
 }
 
 module.exports = async (req, res) => {
-  if (req.method === 'GET') {
-    return res.status(200).json({ message: "Customer endpoint is working!" });
-  }
-
   if (req.method === 'POST') {
     try {
       await connectToDatabase();
@@ -70,9 +66,11 @@ module.exports = async (req, res) => {
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Internal server error" });
+    } finally {
+      mongoose.connection.close();
     }
   } else {
-    res.setHeader('Allow', ['GET', 'POST']);
+    res.setHeader('Allow', ['POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };

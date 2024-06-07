@@ -19,33 +19,58 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-module.exports = async (req, res) => {
+let isConnected;
+
+async function connectToDatabase() {
+  if (isConnected) {
+    return;
+  }
+
   try {
-    await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    const cp = new Cp(req.body);
-    const cpDoc = await cp.save();
-
-    const emailBody = `
-      CP Details:
-      CP Name: ${req.body.cpname}
-      CP Email: ${req.body.cpemail}
-      CP Mobile Number: ${req.body.cpmobilenumber}
-      CP Address: ${req.body.cpaddress}
-    `;
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: ["info@dprprop.com", "mirmubasheer558@gmail.com"],
-      subject: "New CP Form Submission",
-      text: emailBody,
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
+    isConnected = true;
+    console.log("MongoDB Connected");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    throw error;
+  }
+}
 
-    res.status(200).json({ message: "CP data saved successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
-  } finally {
-    mongoose.connection.close();
+module.exports = async (req, res) => {
+  if (req.method === 'POST') {
+    try {
+      await connectToDatabase();
+
+      const cp = new Cp(req.body);
+      const cpDoc = await cp.save();
+
+      const emailBody = `
+        CP Details:
+        CP Name: ${req.body.cpname}
+        CP Email: ${req.body.cpemail}
+        CP Mobile Number: ${req.body.cpmobilenumber}
+        CP Address: ${req.body.cpaddress}
+      `;
+
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: ["info@dprprop.com", "mirmubasheer558@gmail.com"],
+        subject: "New CP Form Submission",
+        text: emailBody,
+      });
+
+      res.status(200).json({ message: "CP data saved successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    } finally {
+      mongoose.connection.close();
+    }
+  } else {
+    res.setHeader('Allow', ['POST']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };

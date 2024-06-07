@@ -19,46 +19,71 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-module.exports = async (req, res) => {
+let isConnected;
+
+async function connectToDatabase() {
+  if (isConnected) {
+    return;
+  }
+
   try {
-    await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    const { businessCategory } = req.body;
-    let businessData = req.body;
-
-    if (businessCategory === "Other") {
-      const { businessName, businessEmail, businessPhone, otherCategory } = req.body;
-      businessData = {
-        businessName,
-        businessEmail,
-        businessPhone,
-        businessCategory: otherCategory
-      };
-    }
-
-    const business = new Business(businessData);
-    const businessDoc = await business.save();
-
-    const emailBody = `
-      Business Details:
-      Business Name: ${businessData.businessName}
-      Business Email: ${businessData.businessEmail}
-      Business Phone: ${businessData.businessPhone}
-      Business Category: ${businessData.businessCategory}
-    `;
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: ["info@dprprop.com", "mirmubasheer558@gmail.com"],
-      subject: "New Business Form Submission",
-      text: emailBody,
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
+    isConnected = true;
+    console.log("MongoDB Connected");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    throw error;
+  }
+}
 
-    res.status(200).json({ message: "Business data saved successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
-  } finally {
-    mongoose.connection.close();
+module.exports = async (req, res) => {
+  if (req.method === 'POST') {
+    try {
+      await connectToDatabase();
+
+      const { businessCategory } = req.body;
+      let businessData = req.body;
+
+      if (businessCategory === "Other") {
+        const { businessName, businessEmail, businessPhone, otherCategory } = req.body;
+        businessData = {
+          businessName,
+          businessEmail,
+          businessPhone,
+          businessCategory: otherCategory
+        };
+      }
+
+      const business = new Business(businessData);
+      const businessDoc = await business.save();
+
+      const emailBody = `
+        Business Details:
+        Business Name: ${businessData.businessName}
+        Business Email: ${businessData.businessEmail}
+        Business Phone: ${businessData.businessPhone}
+        Business Category: ${businessData.businessCategory}
+      `;
+
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: ["info@dprprop.com", "mirmubasheer558@gmail.com"],
+        subject: "New Business Form Submission",
+        text: emailBody,
+      });
+
+      res.status(200).json({ message: "Business data saved successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    } finally {
+      mongoose.connection.close();
+    }
+  } else {
+    res.setHeader('Allow', ['POST']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };
