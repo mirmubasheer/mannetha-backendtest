@@ -19,33 +19,60 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-module.exports = async (req, res) => {
+let isConnected;
+
+async function connectToDatabase() {
+  if (isConnected) {
+    return;
+  }
+
   try {
-    await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    const cust = new Cust(req.body);
-    const custDoc = await cust.save();
-
-    const emailBody = `
-      Customer Details:
-      Name: ${req.body.name}
-      Email: ${req.body.email}
-      Phone: ${req.body.phone}
-      Address: ${req.body.address}
-    `;
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: ["info@dprprop.com", "mirmubasheer558@gmail.com"],
-      subject: "New Customer Form Submission",
-      text: emailBody,
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
+    isConnected = true;
+    console.log("MongoDB Connected");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    throw error;
+  }
+}
 
-    res.status(200).json({ message: "Customer data saved successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
-  } finally {
-    mongoose.connection.close();
+module.exports = async (req, res) => {
+  if (req.method === 'GET') {
+    return res.status(200).json({ message: "Customer endpoint is working!" });
+  }
+
+  if (req.method === 'POST') {
+    try {
+      await connectToDatabase();
+
+      const cust = new Cust(req.body);
+      const custDoc = await cust.save();
+
+      const emailBody = `
+        Customer Details:
+        Name: ${req.body.name}
+        Email: ${req.body.email}
+        Phone: ${req.body.phone}
+        Address: ${req.body.address}
+      `;
+
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: ["info@dprprop.com", "mirmubasheer558@gmail.com"],
+        subject: "New Customer Form Submission",
+        text: emailBody,
+      });
+
+      res.status(200).json({ message: "Customer data saved successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  } else {
+    res.setHeader('Allow', ['GET', 'POST']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };
