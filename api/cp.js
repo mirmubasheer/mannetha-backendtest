@@ -20,23 +20,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-let isConnected;
-
-async function connectToDatabase() {
-  if (isConnected) {
-    return;
-  }
-
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    isConnected = true;
+// Connect to MongoDB when the application starts
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
     console.log("MongoDB Connected");
-  } catch (error) {
+  })
+  .catch((error) => {
     console.error("MongoDB connection error:", error);
-    throw error;
-  }
-}
-
+    process.exit(1); // Exit the application if MongoDB connection fails
+  });
 
 // CORS middleware configuration
 const corsOptions = {
@@ -54,8 +46,6 @@ module.exports = async (req, res) => {
   corsMiddleware(req, res, async () => {
     if (req.method === 'POST') {
       try {
-        await connectToDatabase();
-
         const cp = new Cp(req.body);
         const cpDoc = await cp.save();
 
@@ -78,8 +68,6 @@ module.exports = async (req, res) => {
       } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Internal server error" });
-      } finally {
-        mongoose.connection.close();
       }
     } else {
       res.setHeader('Allow', ['POST']);
