@@ -33,31 +33,32 @@ mongoose.connect(process.env.MONGODB_URI)
 // CORS middleware configuration
 const corsOptions = {
   origin: 'https://dprprop.com',
-  methods: 'POST',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: ['Content-Type'],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
 };
 
 // Apply CORS middleware to your function
 const corsMiddleware = cors(corsOptions);
 
 module.exports = async (req, res) => {
+  // Handle OPTIONS method for preflight requests
+  if (req.method === 'OPTIONS') {
+    corsMiddleware(req, res, () => {
+      res.status(200).end();
+    });
+    return;
+  }
+
   corsMiddleware(req, res, async () => {
     if (req.method === 'POST') {
       try {
-        const { businessCategory } = req.body;
-        let businessData = req.body;
-
-        if (businessCategory === "Other") {
-          const { businessName, businessEmail, businessPhone, otherCategory } = req.body;
-          businessData = {
-            businessName,
-            businessEmail,
-            businessPhone,
-            businessCategory: otherCategory
-          };
-        }
+        const { businessCategory, businessName, businessEmail, businessPhone, otherCategory } = req.body;
+        
+        const businessData = businessCategory === "Other"
+          ? { businessName, businessEmail, businessPhone, businessCategory: otherCategory }
+          : { businessName, businessEmail, businessPhone, businessCategory };
 
         const business = new Business(businessData);
         const businessDoc = await business.save();
@@ -79,7 +80,7 @@ module.exports = async (req, res) => {
 
         res.status(200).json({ message: "Business data saved successfully" });
       } catch (err) {
-        console.error(err);
+        console.error("Internal server error:", err);
         res.status(500).json({ error: "Internal server error" });
       }
     } else {
