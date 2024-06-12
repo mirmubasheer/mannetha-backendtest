@@ -10,7 +10,7 @@ const customerSchema = new mongoose.Schema({
   address: String,
 });
 
-const Cust = mongoose.model("Cust", customerSchema);
+const Customer = mongoose.model("Customer", customerSchema);
 
 const transporter = nodemailer.createTransport({
   service: "Gmail",
@@ -33,7 +33,7 @@ mongoose.connect(process.env.MONGODB_URI)
 // CORS middleware configuration
 const corsOptions = {
   origin: 'https://dprprop.com',
-  methods: 'POST',
+  methods: 'GET,POST,OPTIONS',
   allowedHeaders: ['Content-Type'],
   credentials: true,
   optionsSuccessStatus: 200
@@ -44,17 +44,30 @@ const corsMiddleware = cors(corsOptions);
 
 module.exports = async (req, res) => {
   corsMiddleware(req, res, async () => {
+    res.setHeader('Access-Control-Allow-Origin', 'https://dprprop.com');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+
     if (req.method === 'POST') {
       try {
-        const cust = new Cust(req.body);
-        const custDoc = await cust.save();
+        const { name, email, phone, address } = req.body;
+
+        const customerData = { name, email, phone, address };
+
+        const customer = new Customer(customerData);
+        await customer.save();
 
         const emailBody = `
           Customer Details:
-          Name: ${req.body.name}
-          Email: ${req.body.email}
-          Phone: ${req.body.phone}
-          Address: ${req.body.address}
+          Name: ${customerData.name}
+          Email: ${customerData.email}
+          Phone: ${customerData.phone}
+          Address: ${customerData.address}
         `;
 
         await transporter.sendMail({
@@ -66,7 +79,7 @@ module.exports = async (req, res) => {
 
         res.status(200).json({ message: "Customer data saved successfully" });
       } catch (err) {
-        console.error(err);
+        console.error("Internal server error:", err);
         res.status(500).json({ error: "Internal server error" });
       }
     } else {
