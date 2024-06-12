@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
 
-// Define schema
 const businessSchema = new mongoose.Schema({
   businessName: String,
   businessCategory: String,
@@ -11,10 +10,8 @@ const businessSchema = new mongoose.Schema({
   businessPhone: String,
 });
 
-// Define model
 const Business = mongoose.model("Business", businessSchema);
 
-// Configure nodemailer
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
@@ -23,9 +20,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("MongoDB Connected"))
+// Connect to MongoDB when the application starts
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("MongoDB Connected");
+  })
   .catch((error) => {
     console.error("MongoDB connection error:", error);
     process.exit(1); // Exit the application if MongoDB connection fails
@@ -40,16 +39,13 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-// Apply CORS middleware
+// Apply CORS middleware to your function
 const corsMiddleware = cors(corsOptions);
 
-// Main function to handle request
 module.exports = async (req, res) => {
   corsMiddleware(req, res, async () => {
     if (req.method === 'POST') {
       try {
-        console.log('Request body:', req.body);
-
         const { businessCategory } = req.body;
         let businessData = req.body;
 
@@ -65,7 +61,6 @@ module.exports = async (req, res) => {
 
         const business = new Business(businessData);
         const businessDoc = await business.save();
-        console.log('Business saved:', businessDoc);
 
         const emailBody = `
           Business Details:
@@ -84,7 +79,7 @@ module.exports = async (req, res) => {
 
         res.status(200).json({ message: "Business data saved successfully" });
       } catch (err) {
-        console.error('Error saving business:', err);
+        console.error(err);
         res.status(500).json({ error: "Internal server error" });
       }
     } else {
