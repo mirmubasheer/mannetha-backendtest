@@ -10,7 +10,7 @@ const cpSchema = new mongoose.Schema({
   cpmobilenumber: String,
 });
 
-const Cp = mongoose.model("channelpartner", cpSchema);
+const Cp = mongoose.model("Cp", cpSchema);
 
 const transporter = nodemailer.createTransport({
   service: "Gmail",

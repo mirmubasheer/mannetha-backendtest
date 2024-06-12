@@ -10,7 +10,7 @@ const customerSchema = new mongoose.Schema({
   address: String,
 });
 
-const Cust = mongoose.model("customer", customerSchema);
+const Cust = mongoose.model("Cust", customerSchema);
 
 const transporter = nodemailer.createTransport({
   service: "Gmail",
