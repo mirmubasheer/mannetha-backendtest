@@ -33,24 +33,20 @@ mongoose.connect(process.env.MONGODB_URI)
 // CORS middleware configuration
 const corsOptions = {
   origin: 'https://dprprop.com',
-  methods: 'GET,POST,OPTIONS',
+  methods: 'POST,OPTIONS',
   allowedHeaders: ['Content-Type'],
   credentials: true,
   optionsSuccessStatus: 200
 };
 
-// Apply CORS middleware to your function
 const corsMiddleware = cors(corsOptions);
 
 module.exports = async (req, res) => {
+  // Apply CORS middleware to your function
   corsMiddleware(req, res, async () => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://dprprop.com');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    
     if (req.method === 'OPTIONS') {
-      return res.status(200).end();
+      res.status(200).end();
+      return;
     }
 
     if (req.method === 'POST') {
