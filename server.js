@@ -178,16 +178,12 @@
 // });
 
 
-
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
-// import cookieParser from 'cookie-parser';
-
-// import { UserRouter } from './routes/user.js';
 import { customerRoutes } from './routes/customer.js';
-import  { businessRoutes } from './routes/business.js';
+import { businessRoutes } from './routes/business.js';
 import { cpRoutes } from './routes/cp.js';
 
 dotenv.config();
@@ -203,17 +199,16 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
-app.use(cors(corsOptions));
-app.use(express.json()); // You can use express.json() instead of body-parser
+app.use(cors(corsOptions)); // Apply CORS middleware
+app.options('*', cors(corsOptions)); // Handle preflight requests for all routes
+app.use(express.json());
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.error("MongoDB connection error:", err));
 
-
 // Use Routes
-// app.use('/auth', UserRouter);
 app.use('/auth', customerRoutes);
 app.use('/auth', cpRoutes);
 app.use('/auth', businessRoutes);
@@ -222,6 +217,7 @@ app.use('/auth', businessRoutes);
 app.get('/hello', (req, res) => {
   res.status(200).json({ message: 'Hello, welcome to Mannetha Infra!' });
 });
+
 // Error Handling Middleware (optional)
 app.use((err, req, res, next) => {
   console.error(err.stack);
