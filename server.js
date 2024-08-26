@@ -197,7 +197,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 const corsOptions = {
-  origin: 'https://mannetha-videopage.vercel.app', // Consider specifying your allowed origins
+  origin: '*', // Allow all origins temporarily
   methods: 'GET,POST',
   credentials: true,
   optionsSuccessStatus: 204,
