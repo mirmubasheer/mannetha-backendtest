@@ -177,7 +177,6 @@
 //   console.log(`Server started on port ${PORT}`);
 // });
 
-
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
@@ -193,14 +192,18 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 const corsOptions = {
-  origin: '*', // Allow all origins temporarily
-  methods: 'GET,POST',
+  origin: true, // You can replace this with the specific origin you want to allow, e.g., 'https://your-frontend-domain.com'
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
   credentials: true,
   optionsSuccessStatus: 204,
 };
 
-app.use(cors(corsOptions)); // Apply CORS middleware
+// Apply CORS middleware globally
+app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Handle preflight requests for all routes
+
+// Middleware for parsing JSON
 app.use(express.json());
 
 // MongoDB Connection
