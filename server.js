@@ -185,7 +185,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 // import cookieParser from 'cookie-parser';
 
-import { UserRouter } from './routes/user.js';
+// import { UserRouter } from './routes/user.js';
 import { customerRoutes } from './routes/customer.js';
 import  { businessRoutes } from './routes/business.js';
 import { cpRoutes } from './routes/cp.js';
@@ -213,7 +213,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 
 // Use Routes
-app.use('/auth', UserRouter);
+// app.use('/auth', UserRouter);
 app.use('/auth', customerRoutes);
 app.use('/auth', cpRoutes);
 app.use('/auth', businessRoutes);
