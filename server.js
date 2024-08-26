@@ -8,15 +8,15 @@
 // const nodemailer = require("nodemailer");
 
 // const app = express();
-// const PORT = process.env.PORT || 8080;
+// const PORT = process.env.PORT || 5050;
 // // Middleware
-// // const corsOptions = {
-// //   origin: 'https://dprprop.com',
-// //   methods: 'GET,POST',
-// //   credentials: true,
-// //   optionsSuccessStatus: 204
-// // }
-// // app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: 'https://dprprop.com',
+//   methods: 'GET,POST',
+//   credentials: true,
+//   optionsSuccessStatus: 204
+// }
+// app.use(cors(corsOptions));
 // app.use(cors());
 
 // app.use(bodyParser.json());
@@ -32,7 +32,7 @@
 //   name: String,
 //   email: String,
 //   phone: String,
-//   address: String,
+//   comments: String,
 // });
 
 // const businessSchema = new mongoose.Schema({
@@ -137,7 +137,7 @@
 //         Name: ${data.name}
 //         Email: ${data.email}
 //         Phone: ${data.phone}
-//         Address: ${data.address}
+//         Comments: ${data.comments}
 //       `;
 //       break;
 //     case "business":
@@ -155,7 +155,7 @@
 //         CP Name: ${data.cpname}
 //         CP Email: ${data.cpemail}
 //         CP Mobile Number: ${data.cpmobilenumber}
-//         CP Address: ${data.cpaddress}
+//         CP Message: ${data.cpaddress}
 //       `;
 //       break;
 //     default:
@@ -164,7 +164,7 @@
 
 //   const mailOptions = {
 //     from: process.env.EMAIL_USER,
-//     to: ["info@dprprop.com", "mirmubasheer558@gmail.com"],
+//     to: [ "mirmubasheer558@gmail.com"],
 //     subject: subject,
 //     text: body,
 //   };
@@ -179,6 +179,52 @@
 
 
 
+import express from 'express';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import cors from 'cors';
+// import cookieParser from 'cookie-parser';
+
+import { UserRouter } from './routes/user.js';
+import { customerRoutes } from './routes/customer.js';
+import  { businessRoutes } from './routes/business.js';
+import { cpRoutes } from './routes/cp.js';
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+const corsOptions = {
+  origin: 'http://localhost:3000', // Consider specifying your allowed origins
+  methods: 'GET,POST',
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+app.use(express.json()); // You can use express.json() instead of body-parser
+
+// MongoDB Connection
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => console.error("MongoDB connection error:", err));
 
 
+// Use Routes
+app.use('/auth', UserRouter);
+app.use('/auth', customerRoutes);
+app.use('/auth', cpRoutes);
+app.use('/auth', businessRoutes);
 
+// Error Handling Middleware (optional)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+// Start Server
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+});
