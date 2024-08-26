@@ -218,6 +218,10 @@ app.use('/auth', customerRoutes);
 app.use('/auth', cpRoutes);
 app.use('/auth', businessRoutes);
 
+// Simple GET request to /hello
+app.get('/hello', (req, res) => {
+  res.status(200).json({ message: 'Hello, welcome to Mannetha Infra!' });
+});
 // Error Handling Middleware (optional)
 app.use((err, req, res, next) => {
   console.error(err.stack);
